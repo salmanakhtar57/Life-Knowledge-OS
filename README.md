@@ -27,7 +27,10 @@ persists between restarts).
 ## Endpoints (Step 1 — Document Ingestion)
 
 - `POST /documents` — create a document. Either:
-  - `multipart/form-data` with a `file` field (`.txt` or `.md` only), or
+  - `multipart/form-data` with a `file` field — accepted types:
+    `.txt`, `.md`, `.json`, `.csv`, `.html`/`.htm`, `.rtf`, `.log` (decoded as UTF-8), and `.pdf`
+    (text extracted via `pypdf`; scanned/image-only PDFs with no extractable text are rejected).
+    DOCX and other binary formats are still not supported, or
   - `application/json` body: `{"title": "...", "text": "..."}`
 - `GET /documents` — list all documents (id, title, source_type, uploaded_at)
 - `GET /documents/{id}` — full document detail, including `raw_text`

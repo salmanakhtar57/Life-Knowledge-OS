@@ -1,8 +1,11 @@
+import io
 import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from pydantic import ValidationError
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 from sqlalchemy.orm import Session
 
 from app.schemas import schemas
@@ -11,7 +14,7 @@ from app.models import models
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-ALLOWED_EXTENSIONS = {".txt", ".md"}
+ALLOWED_EXTENSIONS = {".txt", ".md", ".json", ".csv", ".html", ".htm", ".rtf", ".log", ".pdf"}
 
 
 def _save(db: Session, title: str, source_type: str, raw_text: str) -> models.Document:
@@ -28,7 +31,8 @@ async def create_document(
     db: Session = Depends(get_db),
     file: Optional[UploadFile] = File(None),
 ):
-    """Accepts EITHER a multipart/form-data upload with a 'file' field (.txt/.md),
+    """Accepts EITHER a multipart/form-data upload with a 'file' field
+    (.txt/.md/.json/.csv/.html/.htm/.rtf/.log as UTF-8 text, or .pdf with text extracted via pypdf),
     OR an application/json body: {"title": str, "text": str}.
     The OpenAPI schema below reflects the file-upload form; use raw JSON for the other case."""
     content_type = request.headers.get("content-type", "")
@@ -43,25 +47,41 @@ async def create_document(
         filename = file.filename or ""
         ext = filename[filename.rfind(".") :].lower() if "." in filename else ""
         if ext not in ALLOWED_EXTENSIONS:
+            allowed = ", ".join(sorted(ALLOWED_EXTENSIONS))
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unsupported file type '{ext or 'unknown'}'. Only .txt and .md are accepted.",
+                detail=f"Unsupported file type '{ext or 'unknown'}'. Accepted types: {allowed}.",
             )
 
         raw_bytes = await file.read()
-        try:
-            text = raw_bytes.decode("utf-8")
-        except UnicodeDecodeError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File must be UTF-8 encoded text.",
-            )
 
-        if not text.strip():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Uploaded file is empty.",
-            )
+        if ext == ".pdf":
+            try:
+                reader = PdfReader(io.BytesIO(raw_bytes))
+            except (PdfReadError, ValueError) as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Could not read PDF file: {exc}",
+                )
+            text = "\n".join(page.extract_text() or "" for page in reader.pages).strip()
+            if not text:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No extractable text found in PDF (it may be scanned/image-only).",
+                )
+        else:
+            try:
+                text = raw_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="File must be UTF-8 encoded text.",
+                )
+            if not text.strip():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Uploaded file is empty.",
+                )
 
         return _save(db, title=filename, source_type=ext.lstrip("."), raw_text=text)
 
