@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from app import models, schemas
-from app.database import get_db
+from app.schemas import schemas
+from app.database.database import get_db
+from app.models import models
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
