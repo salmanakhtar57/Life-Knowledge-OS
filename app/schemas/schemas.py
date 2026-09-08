@@ -33,3 +33,17 @@ class DocumentListItem(BaseModel):
 
 class DocumentDetail(DocumentListItem):
     raw_text: str
+
+
+class ChunkOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    chunk_index: int
+    text: str
+
+
+class ProcessResult(BaseModel):
+    document_id: int
+    chunk_count: int
+    chunks: list[ChunkOut]

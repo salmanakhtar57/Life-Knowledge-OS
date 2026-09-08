@@ -1,3 +1,15 @@
-from app.schemas.schemas import DocumentCreate, DocumentDetail, DocumentListItem
+from app.schemas.schemas import (
+    ChunkOut,
+    DocumentCreate,
+    DocumentDetail,
+    DocumentListItem,
+    ProcessResult,
+)
 
-__all__ = ["DocumentCreate", "DocumentDetail", "DocumentListItem"]
+__all__ = [
+    "ChunkOut",
+    "DocumentCreate",
+    "DocumentDetail",
+    "DocumentListItem",
+    "ProcessResult",
+]

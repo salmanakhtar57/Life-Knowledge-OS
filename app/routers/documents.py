@@ -8,6 +8,7 @@ from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 from sqlalchemy.orm import Session
 
+from app.services.chunking import chunk_text
 from app.schemas import schemas
 from app.database.database import get_db
 from app.models import models
@@ -117,3 +118,31 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
             detail=f"Document {document_id} not found.",
         )
     return document
+
+
+@router.post("/{document_id}/process", response_model=schemas.ProcessResult)
+def process_document(document_id: int, db: Session = Depends(get_db)):
+    document = db.get(models.Document, document_id)
+    if document is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document {document_id} not found.",
+        )
+
+    db.query(models.Chunk).filter(models.Chunk.document_id == document_id).delete()
+
+    pieces = chunk_text(document.raw_text)
+    chunks = [
+        models.Chunk(document_id=document_id, chunk_index=i, text=piece, embedding=None)
+        for i, piece in enumerate(pieces)
+    ]
+    db.add_all(chunks)
+    db.commit()
+    for chunk in chunks:
+        db.refresh(chunk)
+
+    return schemas.ProcessResult(
+        document_id=document_id,
+        chunk_count=len(chunks),
+        chunks=chunks,
+    )
