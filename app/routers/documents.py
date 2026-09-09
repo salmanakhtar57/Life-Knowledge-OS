@@ -9,6 +9,7 @@ from pypdf.errors import PdfReadError
 from sqlalchemy.orm import Session
 
 from app.services.chunking import chunk_text
+from app.services.embeddings import embed_text
 from app.schemas import schemas
 from app.database.database import get_db
 from app.models import models
@@ -133,7 +134,12 @@ def process_document(document_id: int, db: Session = Depends(get_db)):
 
     pieces = chunk_text(document.raw_text)
     chunks = [
-        models.Chunk(document_id=document_id, chunk_index=i, text=piece, embedding=None)
+        models.Chunk(
+            document_id=document_id,
+            chunk_index=i,
+            text=piece,
+            embedding=json.dumps(embed_text(piece)),
+        )
         for i, piece in enumerate(pieces)
     ]
     db.add_all(chunks)
