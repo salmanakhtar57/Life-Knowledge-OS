@@ -11,7 +11,7 @@ def test_embed_text_returns_vector_from_api():
     fake_client = MagicMock()
     fake_client.embeddings.create.return_value = fake_response
 
-    with patch("app.services.embeddings._get_client", return_value=fake_client):
+    with patch("app.services.embeddings.get_client", return_value=fake_client):
         result = embed_text("hello world")
 
     assert result == fake_embedding

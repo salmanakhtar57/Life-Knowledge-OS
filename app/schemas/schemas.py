@@ -47,3 +47,27 @@ class ProcessResult(BaseModel):
     document_id: int
     chunk_count: int
     chunks: list[ChunkOut]
+
+
+class AskRequest(BaseModel):
+    question: str
+
+    @field_validator("question")
+    @classmethod
+    def question_not_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("question must not be empty")
+        return v
+
+
+class SourceOut(BaseModel):
+    document_id: int
+    document_title: str
+    chunk_id: int
+    chunk_index: int
+    snippet: str
+
+
+class AskResponse(BaseModel):
+    answer: str
+    sources: list[SourceOut]
