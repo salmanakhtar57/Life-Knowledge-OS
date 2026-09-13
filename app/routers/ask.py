@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.models import models
 from app.schemas import schemas
+from app.services.document_sync import sync_documents_from_disk
 from app.services.embeddings import embed_text
 from app.services.generation import generate_answer
+from app.services.processing import ensure_all_documents_processed
 from app.services.prompting import build_prompt
 from app.services.search import top_k_chunks
 
@@ -19,11 +21,14 @@ SNIPPET_LENGTH = 200
 def ask_question(payload: schemas.AskRequest, db: Session = Depends(get_db)):
     question = payload.question.strip()
 
-    chunks = db.query(models.Chunk).filter(models.Chunk.embedding.isnot(None)).all()
+    sync_documents_from_disk(db)
+    ensure_all_documents_processed(db)
+
+    chunks = db.query(models.Chunk).all()
     if not chunks:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No processed documents to search yet. Upload and process a document first.",
+            detail="No documents have been added yet.",
         )
 
     query_embedding = embed_text(question)

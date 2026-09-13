@@ -1,0 +1,191 @@
+About Salman — FAQs
+Basic
+
+Who is Salman?
+Salman is a software developer from Lahore who is building his career around backend engineering, AI, and continuous learning. He is also someone who spends a lot of time thinking about personal growth, purpose, consistency, books, and how to build a meaningful life alongside a career.
+
+Where is Salman from?
+Salman is based in Lahore, Pakistan.
+
+What does Salman do?
+He works primarily as a Python/backend developer, while gradually moving deeper into AI engineering and modern backend systems.
+
+What did Salman study?
+He studied Computer Science and graduated from COMSATS University in 2023.
+
+How would Salman describe himself professionally?
+As someone who is still growing but wants to become a genuinely strong engineer rather than simply collect technologies.
+
+Personality
+
+What is Salman like as a person?
+He is relatively introverted, thoughtful, curious, and reflective. He tends to think deeply about things rather than immediately accepting them.
+
+Is Salman an introvert?
+Yes. He generally prefers quieter environments and meaningful one-to-one or small-group conversations over large social gatherings.
+
+Does Salman enjoy meeting new people?
+Yes, but he prefers low-pressure environments. He has particularly enjoyed non-technical meetups where conversations happen naturally rather than formal networking.
+
+What kind of conversations does Salman enjoy?
+Conversations about books, ideas, life, personal growth, technology, philosophy, experiences, and people's perspectives.
+
+Is Salman a very social person?
+Not particularly. He seems more comfortable with depth than quantity when it comes to relationships and conversations.
+
+Does Salman overthink?
+At times, yes. One of his recurring personal goals is learning to act consistently without overthinking everything.
+
+What is something Salman struggles with?
+Maintaining consistency without turning every goal into something overwhelming or excessively complicated.
+
+What does Salman value?
+Growth, learning, independence, meaningful work, consistency, stability, authenticity, and understanding things deeply.
+
+Learning & Growth
+
+Is Salman naturally curious?
+Very much so. He tends to explore topics beyond what is immediately required for his job.
+
+How does Salman like to learn?
+He prefers understanding something by actually building with it. He generally dislikes blindly copying solutions without understanding what is happening.
+
+Does Salman like structured learning?
+Yes. He often benefits from clear roadmaps, phases, checklists, and practical projects.
+
+Does Salman like learning everything at once?
+No. He has increasingly recognized that trying to learn too many things simultaneously creates unnecessary overwhelm.
+
+What is Salman currently trying to improve about himself?
+Consistency, technical depth, communication, career progression, and the ability to keep moving forward without constantly questioning whether he is doing enough.
+
+What does Salman mean by “growth”?
+Not simply learning more technologies. For him, growth also means becoming more capable, independent, confident, disciplined, and thoughtful.
+
+Career
+
+What does Salman want from his career?
+He wants to become a strong software/backend engineer and eventually move toward senior-level engineering and AI engineering responsibilities.
+
+Is salary important to Salman?
+Yes. He wants significant career and salary growth, but not at the expense of becoming technically competent.
+
+Does Salman want to remain a Python developer forever?
+Python is an important part of his career, but his larger goal is to become a strong engineer rather than attach his identity permanently to one programming language.
+
+What kind of engineer does Salman want to become?
+A backend/AI engineer who understands systems deeply enough to design, build, debug, deploy, and maintain real products.
+
+Does Salman prefer practical work or theory?
+Practical work, but he wants enough theory to understand why something works.
+
+What does Salman dislike about learning technology?
+Learning things purely because they are trendy, copying code without understanding it, and accumulating tutorials without actually building anything.
+
+Books & Reading
+
+Does Salman read books?
+Yes. Reading is an important non-technical interest for him.
+
+What kind of books does Salman enjoy?
+He has shown interest in literature, philosophy, psychology, history, meaning, human behavior, and reflective writing.
+
+What books has Salman discussed?
+Among others, he has discussed Man's Search for Meaning, The Kite Runner, and Molière's The Misanthrope.
+
+Why does Salman read?
+Not just for information. He seems particularly interested in books that make him think differently about people, suffering, meaning, society, relationships, and life.
+
+Does Salman enjoy discussing books?
+Yes. He seems to enjoy the interpretation and ideas surrounding a book, not just finishing it.
+
+Writing
+
+Does Salman write?
+Yes. He has an interest in reflective writing and publishing his thoughts.
+
+What does Salman write about?
+Personal growth, consistency, life, healing, ideas, experiences, books, and reflections on becoming a better version of himself.
+
+Does Salman want his writing to sound sophisticated?
+Not necessarily. He generally prefers writing that sounds like him rather than something overly polished or artificial.
+
+Does Salman like AI-generated writing?
+He prefers his own words and uses AI more as a tool for improving grammar, structure, or thinking rather than replacing his voice.
+
+Why does Salman want to write?
+Partly to understand his own thoughts better and partly to share ideas that might resonate with other people.
+
+Social Life
+
+What kind of social environments does Salman prefer?
+Quiet cafés, book-related gatherings, small groups, and environments where people can have genuine conversations.
+
+Does Salman enjoy networking events?
+Traditional professional networking isn't particularly appealing to him.
+
+What kind of meetup does Salman enjoy?
+Something like a book club or casual gathering where there is an actual shared interest.
+
+What is appealing about a Silent Book Club to Salman?
+It provides social interaction without the pressure to constantly talk. People can simply be around one another, read, and have conversations naturally.
+
+Technology & AI
+
+Why is Salman interested in AI?
+He sees AI as a natural extension of his backend experience and wants to understand how AI-powered applications are actually built rather than simply using AI tools.
+
+Does Salman want to become an AI researcher?
+Not primarily. His interest is more toward AI engineering—building useful AI-powered systems.
+
+What AI area particularly interests him?
+RAG, LLM applications, chatbots, embeddings, retrieval, tool calling, and integrating AI into real backend systems.
+
+What is Salman currently building conceptually?
+His idea of a “Life Knowledge OS — What Have I Learned?” is an AI/RAG project based around his own learning, knowledge, articles, interview preparation, and accumulated understanding.
+
+Why is that project meaningful to him?
+Because it isn't just another generic chatbot. It connects his technical learning with something personally useful: understanding and retrieving what he himself has learned.
+
+Personal Philosophy
+
+What seems important to Salman about life?
+Meaning, growth, learning, consistency, and becoming someone he respects.
+
+Does Salman think life is only about career?
+No. Career is important, but he also cares about books, relationships, reflection, personal development, and having a meaningful life outside work.
+
+Does Salman care about “success”?
+Yes, but he seems to be gradually defining success more broadly than just salary or job title.
+
+What is one recurring theme in Salman's thinking?
+The tension between wanting to grow and wanting to avoid overwhelming himself.
+
+What is Salman trying to learn about consistency?
+That consistency doesn't necessarily mean doing everything every day. It can mean continuing to return to what matters without constantly restarting.
+
+Does Salman want to become a completely different person?
+Not really. His direction seems more like becoming a stronger, more capable, and more authentic version of himself.
+
+Simple Personal FAQ
+
+What does Salman enjoy?
+Reading, learning, building software, exploring AI, thoughtful conversations, writing, and personal reflection.
+
+What does Salman dislike?
+Unnecessary complexity, fake professionalism, blindly copying things, shallow networking, and feeling overwhelmed by too many simultaneous goals.
+
+What motivates Salman?
+The desire to improve, become independent, build a good career, understand things deeply, and create a life that feels meaningful.
+
+What scares Salman professionally?
+Getting stuck, remaining average, falling behind technically, or spending years working without actually becoming significantly better.
+
+What does Salman want more of in life?
+Consistency, stability, meaningful relationships, deeper learning, better work, financial growth, reading, writing, and time to think.
+
+What does Salman probably need less of?
+Overthinking, comparing his progress with others, trying to learn too many things simultaneously, and putting unnecessary pressure on himself.
+
+What is Salman ultimately trying to build?
+Not just a career. He seems to be trying to build a life where his technical work, curiosity, personal growth, writing, reading, and sense of meaning all fit together.

@@ -1,108 +1,25 @@
-import io
-import json
-from typing import Optional
-
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
-from pydantic import ValidationError
-from pypdf import PdfReader
-from pypdf.errors import PdfReadError
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.services.chunking import chunk_text
-from app.services.embeddings import embed_text
-from app.schemas import schemas
 from app.database.database import get_db
 from app.models import models
+from app.schemas import schemas
+from app.services.processing import process_document
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-ALLOWED_EXTENSIONS = {".txt", ".md", ".json", ".csv", ".html", ".htm", ".rtf", ".log", ".pdf"}
 
-
-def _save(db: Session, title: str, source_type: str, raw_text: str) -> models.Document:
-    document = models.Document(title=title, source_type=source_type, raw_text=raw_text)
+@router.post("", response_model=schemas.DocumentDetail, status_code=status.HTTP_201_CREATED)
+def create_document(payload: schemas.DocumentCreate, db: Session = Depends(get_db)):
+    document = models.Document(
+        title=payload.title.strip(),
+        source_type="txt",
+        raw_text=payload.text,
+    )
     db.add(document)
     db.commit()
     db.refresh(document)
     return document
-
-
-@router.post("", response_model=schemas.DocumentDetail, status_code=status.HTTP_201_CREATED)
-async def create_document(
-    request: Request,
-    db: Session = Depends(get_db),
-    file: Optional[UploadFile] = File(None),
-):
-    """Accepts EITHER a multipart/form-data upload with a 'file' field
-    (.txt/.md/.json/.csv/.html/.htm/.rtf/.log as UTF-8 text, or .pdf with text extracted via pypdf),
-    OR an application/json body: {"title": str, "text": str}.
-    The OpenAPI schema below reflects the file-upload form; use raw JSON for the other case."""
-    content_type = request.headers.get("content-type", "")
-
-    if content_type.startswith("multipart/form-data"):
-        if file is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No file provided in multipart request.",
-            )
-
-        filename = file.filename or ""
-        ext = filename[filename.rfind(".") :].lower() if "." in filename else ""
-        if ext not in ALLOWED_EXTENSIONS:
-            allowed = ", ".join(sorted(ALLOWED_EXTENSIONS))
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unsupported file type '{ext or 'unknown'}'. Accepted types: {allowed}.",
-            )
-
-        raw_bytes = await file.read()
-
-        if ext == ".pdf":
-            try:
-                reader = PdfReader(io.BytesIO(raw_bytes))
-            except (PdfReadError, ValueError) as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Could not read PDF file: {exc}",
-                )
-            text = "\n".join(page.extract_text() or "" for page in reader.pages).strip()
-            if not text:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="No extractable text found in PDF (it may be scanned/image-only).",
-                )
-        else:
-            try:
-                text = raw_bytes.decode("utf-8")
-            except UnicodeDecodeError:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="File must be UTF-8 encoded text.",
-                )
-            if not text.strip():
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Uploaded file is empty.",
-                )
-
-        return _save(db, title=filename, source_type=ext.lstrip("."), raw_text=text)
-
-    if content_type.startswith("application/json"):
-        body = await request.json()
-        try:
-            payload = schemas.DocumentCreate.model_validate(body)
-        except ValidationError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=json.loads(exc.json()),
-            )
-
-        return _save(db, title=payload.title.strip(), source_type="txt", raw_text=payload.text)
-
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Send either multipart/form-data with a 'file' field, or an application/json body with 'title' and 'text'.",
-    )
 
 
 @router.get("", response_model=list[schemas.DocumentListItem])
@@ -122,7 +39,7 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{document_id}/process", response_model=schemas.ProcessResult)
-def process_document(document_id: int, db: Session = Depends(get_db)):
+def process_document_endpoint(document_id: int, db: Session = Depends(get_db)):
     document = db.get(models.Document, document_id)
     if document is None:
         raise HTTPException(
@@ -130,22 +47,7 @@ def process_document(document_id: int, db: Session = Depends(get_db)):
             detail=f"Document {document_id} not found.",
         )
 
-    db.query(models.Chunk).filter(models.Chunk.document_id == document_id).delete()
-
-    pieces = chunk_text(document.raw_text)
-    chunks = [
-        models.Chunk(
-            document_id=document_id,
-            chunk_index=i,
-            text=piece,
-            embedding=json.dumps(embed_text(piece)),
-        )
-        for i, piece in enumerate(pieces)
-    ]
-    db.add_all(chunks)
-    db.commit()
-    for chunk in chunks:
-        db.refresh(chunk)
+    chunks = process_document(db, document)
 
     return schemas.ProcessResult(
         document_id=document_id,

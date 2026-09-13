@@ -1,8 +1,6 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
-python-multipart
-pypdf
 pytest
 openai
 python-dotenv

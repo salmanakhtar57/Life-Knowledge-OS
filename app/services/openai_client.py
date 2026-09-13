@@ -1,7 +1,9 @@
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+# Search upward from this file's own location for the project's .env, so the
+# key loads correctly regardless of the directory the app was started from.
+load_dotenv(find_dotenv())
 
 _client: OpenAI | None = None
 
