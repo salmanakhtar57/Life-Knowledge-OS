@@ -75,3 +75,53 @@ def test_sync_skips_missing_directory(tmp_path, monkeypatch):
     document_sync.sync_documents_from_disk(db)
 
     assert db.query(models.Document).count() == 0
+
+
+def test_sync_removes_document_whose_file_was_deleted(tmp_path, monkeypatch):
+    file_path = tmp_path / "old-notes.txt"
+    file_path.write_text("Old notes", encoding="utf-8")
+    (tmp_path / "faqs.txt").write_text("Some FAQ content", encoding="utf-8")
+    monkeypatch.setattr(document_sync, "DOCS_DIR", tmp_path)
+
+    db = _session()
+    document_sync.sync_documents_from_disk(db)
+    old = db.query(models.Document).filter(models.Document.title == "old-notes.txt").one()
+    db.add(models.Chunk(document_id=old.id, chunk_index=0, text="old chunk", embedding="[]"))
+    db.commit()
+
+    file_path.unlink()
+    document_sync.sync_documents_from_disk(db)
+
+    assert [d.title for d in db.query(models.Document).all()] == ["faqs.txt"]
+    assert db.query(models.Chunk).count() == 0
+
+
+def test_sync_removes_documents_not_backed_by_a_file(tmp_path, monkeypatch):
+    (tmp_path / "faqs.txt").write_text("Some FAQ content", encoding="utf-8")
+    monkeypatch.setattr(document_sync, "DOCS_DIR", tmp_path)
+
+    db = _session()
+    db.add(models.Document(title="Cover Letter.pdf", source_type="pdf", raw_text="Dear ..."))
+    db.commit()
+
+    document_sync.sync_documents_from_disk(db)
+
+    assert [d.title for d in db.query(models.Document).all()] == ["faqs.txt"]
+
+
+def test_sync_collapses_duplicate_documents_for_same_file(tmp_path, monkeypatch):
+    (tmp_path / "faqs.txt").write_text("Some FAQ content", encoding="utf-8")
+    monkeypatch.setattr(document_sync, "DOCS_DIR", tmp_path)
+
+    db = _session()
+    for _ in range(2):
+        db.add(models.Document(title="faqs.txt", source_type="txt", raw_text="Some FAQ content"))
+    db.commit()
+    duplicate_id = db.query(models.Document).order_by(models.Document.id.desc()).first().id
+    db.add(models.Chunk(document_id=duplicate_id, chunk_index=0, text="dup chunk", embedding="[]"))
+    db.commit()
+
+    document_sync.sync_documents_from_disk(db)
+
+    assert db.query(models.Document).count() == 1
+    assert db.query(models.Chunk).filter(models.Chunk.document_id == duplicate_id).count() == 0

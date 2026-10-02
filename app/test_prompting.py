@@ -22,3 +22,9 @@ def test_prompt_instructs_dont_know_fallback():
 def test_prompt_instructs_citing_sources():
     prompt = build_prompt("question", [("note.md", "text")])
     assert "cite" in prompt.lower()
+
+
+def test_prompt_instructs_plain_text_without_markdown():
+    prompt = build_prompt("question", [("note.md", "text")])
+    assert "plain text" in prompt.lower()
+    assert "markdown" in prompt.lower()

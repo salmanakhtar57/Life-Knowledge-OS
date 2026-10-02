@@ -166,6 +166,7 @@ body {
 
 .answer-card p {
   line-height: 1.6;
+  white-space: pre-line;
   margin: 0 0 18px;
 }
 

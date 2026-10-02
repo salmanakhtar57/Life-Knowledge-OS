@@ -12,4 +12,6 @@ def build_prompt(question: str, sources: list[tuple[str, str]]) -> str:
         "- If the context does not contain enough information to answer, say "
         '"I don\'t know based on your notes."\n'
         "- Cite which source(s) you used in your answer.\n"
+        "- Write in plain text only. Do not use Markdown or any formatting syntax "
+        "(no **bold**, *italics*, # headings, bullet symbols, or backticks).\n"
     )
