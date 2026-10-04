@@ -6,3 +6,6 @@ python-dotenv
 openrouter
 requests
 httpx
+pyjwt
+pwdlib[argon2]
+python-multipart

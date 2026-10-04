@@ -36,5 +36,14 @@ MIN_SIMILARITY = float(os.getenv("MIN_SIMILARITY", "0.15"))
 # Answers
 OWNER_NAME = os.getenv("OWNER_NAME", "Salman")
 
+# Auth: a single owner account, no users table. Generate the hash and secret
+# with the commands in app/core/security.py. Until all three are set, every
+# login is rejected and protected routes stay locked.
+AUTH_USERNAME = os.getenv("AUTH_USERNAME", "")
+AUTH_PASSWORD_HASH = os.getenv("AUTH_PASSWORD_HASH", "")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+
 # Web
 CORS_ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX", r"http://(localhost|127\.0\.0\.1):\d+")

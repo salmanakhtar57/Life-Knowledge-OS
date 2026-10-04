@@ -1,12 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.database.database import get_db
 from app.models import models
 from app.schemas import schemas
 from app.services.processing import sync_knowledge_base
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+# Owner-only: these expose the raw notes and trigger paid embedding calls.
+router = APIRouter(
+    prefix="/documents",
+    tags=["documents"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("", response_model=list[schemas.DocumentListItem])

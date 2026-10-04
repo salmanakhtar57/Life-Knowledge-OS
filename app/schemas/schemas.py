@@ -43,3 +43,12 @@ class SourceOut(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     sources: list[SourceOut]
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class CurrentUserOut(BaseModel):
+    username: str
