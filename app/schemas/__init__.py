@@ -1,21 +1,17 @@
 from app.schemas.schemas import (
     AskRequest,
     AskResponse,
-    ChunkOut,
-    DocumentCreate,
     DocumentDetail,
     DocumentListItem,
-    ProcessResult,
     SourceOut,
+    SyncResult,
 )
 
 __all__ = [
     "AskRequest",
     "AskResponse",
-    "ChunkOut",
-    "DocumentCreate",
     "DocumentDetail",
     "DocumentListItem",
-    "ProcessResult",
     "SourceOut",
+    "SyncResult",
 ]
