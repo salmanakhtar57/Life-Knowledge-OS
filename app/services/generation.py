@@ -2,8 +2,7 @@ import httpx
 from openrouter.errors import NoResponseError, OpenRouterError, ResponseValidationError
 
 from app.core import config
-from app.core.errors import AIServiceError
-from app.services.openrouter_client import get_client
+from app.services.openrouter_client import AIServiceError, get_client
 
 
 def generate_answer(prompt: str) -> str:

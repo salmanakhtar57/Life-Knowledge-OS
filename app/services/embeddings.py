@@ -1,7 +1,7 @@
 import requests
 
 from app.core import config
-from app.core.errors import AIServiceError
+from app.services.openrouter_client import AIServiceError
 
 EMBEDDINGS_URL = f"{config.OPENROUTER_BASE_URL}/embeddings"
 

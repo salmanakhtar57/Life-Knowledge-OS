@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 
 from app.core import config
-from app.core.errors import AIServiceError
+from app.services.openrouter_client import AIServiceError
 from app.core.routing import api_router
 from app.database.database import Base, SessionLocal, engine
 from app.services.processing import sync_knowledge_base
