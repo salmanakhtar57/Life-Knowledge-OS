@@ -1,7 +1,10 @@
-# from app.apis.api_v1 import control_panel, user_routes, chat_routes, export_data, appointment
-from app.routers import documents
 from fastapi import APIRouter
 
+from app.routers import ask, documents, user_routes
+
+# Each router sets its own prefix (/documents, /ask, /auth), so none is added here.
 api_router = APIRouter()
 
-api_router.include_router(documents.router, prefix="/documents")
+api_router.include_router(documents.router)
+api_router.include_router(ask.router)
+api_router.include_router(user_routes.router)
