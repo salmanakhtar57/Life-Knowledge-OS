@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Header } from "./components/Header";
 import { QuestionForm } from "./components/QuestionForm";
 import { AnswerCard } from "./components/AnswerCard";
+import { UploadPanel } from "./components/UploadPanel";
 import type { AskResponse } from "./types/api";
 
 interface Card {
@@ -21,6 +22,7 @@ export default function App() {
     <main className="page">
       <Header />
       <QuestionForm onAnswered={handleAnswered} />
+      <UploadPanel />
       {cards.length === 0 ? (
         <p className="empty-state">
           No card yet — ask something above and it'll be filed here.

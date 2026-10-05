@@ -10,3 +10,9 @@ export interface AskResponse {
   answer: string;
   sources: SourceOut[];
 }
+
+export interface UploadResult {
+  id: number;
+  title: string;
+  chunk_count: number;
+}

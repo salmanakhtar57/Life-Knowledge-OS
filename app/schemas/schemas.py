@@ -21,6 +21,12 @@ class SyncResult(BaseModel):
     chunk_count: int
 
 
+class UploadResult(BaseModel):
+    id: int
+    title: str
+    chunk_count: int
+
+
 class AskRequest(BaseModel):
     question: str
 
@@ -48,7 +54,3 @@ class AskResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-
-class CurrentUserOut(BaseModel):
-    username: str

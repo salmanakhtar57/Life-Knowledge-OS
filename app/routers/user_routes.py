@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.core.security import CurrentUser, authenticate_owner, create_access_token
+from app.core.security import authenticate_owner, create_access_token
 from app.schemas import schemas
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -21,7 +21,3 @@ def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depen
         )
     return schemas.Token(access_token=create_access_token(form_data.username), token_type="bearer")
 
-
-@router.get("/me", response_model=schemas.CurrentUserOut)
-def read_current_user(username: CurrentUser):
-    return schemas.CurrentUserOut(username=username)

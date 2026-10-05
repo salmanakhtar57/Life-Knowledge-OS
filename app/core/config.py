@@ -23,6 +23,10 @@ AI_REQUEST_TIMEOUT_SECONDS = float(os.getenv("AI_REQUEST_TIMEOUT_SECONDS", "60")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./life_knowledge_os.db")
 DOCS_DIR = Path(os.getenv("DOCS_DIR", str(BASE_DIR / "FAQs")))
 
+# Uploads (saved into DOCS_DIR)
+UPLOAD_ALLOWED_EXTENSIONS = {".txt", ".md"}
+UPLOAD_MAX_BYTES = int(os.getenv("UPLOAD_MAX_BYTES", str(1024 * 1024)))
+
 # Chunking
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
