@@ -9,6 +9,9 @@ It's a retrieval-augmented generation (RAG) pipeline built from scratch:
 chunking, embeddings, vector search and grounded generation, with no RAG
 framework.
 
+For the full architecture, how the RAG pipeline works, cost estimates and
+links to the supporting documentation, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 **Status:** Phase 1 (MVP) is complete. Phase 2 (Substack, Medium and portfolio
 content) is next; see the roadmap below.
 
