@@ -10,14 +10,14 @@ import uvicorn
 from app.core import config
 from app.services.openrouter_client import AIServiceError
 from app.core.routing import api_router
-from app.database.database import Base, SessionLocal, engine
+from app.database.database import SessionLocal, init_db
 from app.services.processing import sync_knowledge_base
 
 logger = logging.getLogger(__name__)
 
 
 def _startup_sync() -> None:
-    Base.metadata.create_all(bind=engine)
+    init_db()
     db = SessionLocal()
     try:
         sync_knowledge_base(db)

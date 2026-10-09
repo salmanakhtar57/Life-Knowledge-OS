@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 from app.database.database import get_db
 from app.models import models
 from app.schemas import schemas
-from app.services.document_sync import sync_documents_from_disk
+from app.services.document_sync import file_url, sync_documents_from_disk
 from app.services.openrouter_client import AIServiceError
 from app.services.processing import sync_knowledge_base
 
@@ -22,7 +22,7 @@ owner_only = [Depends(get_current_user)]
 
 @router.get("", response_model=list[schemas.DocumentListItem], dependencies=owner_only)
 def list_documents(db: Session = Depends(get_db)):
-    return db.query(models.Document).order_by(models.Document.uploaded_at.desc()).all()
+    return db.query(models.Document).order_by(models.Document.created_at.desc()).all()
 
 
 @router.post("/sync", response_model=schemas.SyncResult, dependencies=owner_only)
@@ -88,7 +88,7 @@ def upload_document(file: UploadFile, db: Session = Depends(get_db)):
         sync_documents_from_disk(db)
         raise
 
-    document = db.query(models.Document).filter(models.Document.title == filename).one()
+    document = db.query(models.Document).filter(models.Document.url == file_url(filename)).one()
     return schemas.UploadResult(
         id=document.id,
         title=document.title,

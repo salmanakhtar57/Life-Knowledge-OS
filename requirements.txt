@@ -1,6 +1,8 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
+psycopg[binary]
+pgvector
 pytest
 python-dotenv
 openrouter

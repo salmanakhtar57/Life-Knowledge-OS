@@ -1,4 +1,3 @@
-import json
 import threading
 
 from sqlalchemy import or_, select
@@ -40,7 +39,7 @@ def process_document(db: Session, document: models.Document) -> list[models.Chun
             document_id=document.id,
             chunk_index=i,
             text=piece,
-            embedding=json.dumps(embedding),
+            embedding=embedding,
             embedding_model=config.EMBEDDING_MODEL,
         )
         for i, (piece, embedding) in enumerate(zip(pieces, embeddings, strict=True))
@@ -52,19 +51,12 @@ def process_document(db: Session, document: models.Document) -> list[models.Chun
 
 def ensure_all_documents_processed(db: Session) -> None:
     """Chunk + embed every document that has no chunks yet, or has any chunk
-    that is missing its embedding or was embedded with a different model than
-    the current one. Up-to-date documents are left untouched (no repeat
-    embedding calls)."""
+    that was embedded with a different model than the current one. Up-to-date
+    documents are left untouched (no repeat embedding calls)."""
     with_chunks = select(models.Chunk.document_id).distinct()
     needs_embedding = (
         select(models.Chunk.document_id)
-        .where(
-            or_(
-                models.Chunk.embedding.is_(None),
-                models.Chunk.embedding_model.is_(None),
-                models.Chunk.embedding_model != config.EMBEDDING_MODEL,
-            )
-        )
+        .where(models.Chunk.embedding_model != config.EMBEDDING_MODEL)
         .distinct()
     )
 

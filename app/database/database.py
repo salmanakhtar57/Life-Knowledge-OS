@@ -1,24 +1,22 @@
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from app.core import config
 
-engine = create_engine(
-    config.DATABASE_URL, connect_args={"check_same_thread": False}
-)
-
-
-@event.listens_for(engine, "connect")
-def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
-    # SQLite ignores foreign keys (and ON DELETE CASCADE) unless turned on per connection.
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
-
+# pool_pre_ping replaces connections the server has closed (restart, idle timeout)
+# instead of failing the next request with them.
+engine = create_engine(config.DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+
+def init_db() -> None:
+    """Enable pgvector, then create any missing tables. Safe to run on every start."""
+    with engine.begin() as connection:
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():

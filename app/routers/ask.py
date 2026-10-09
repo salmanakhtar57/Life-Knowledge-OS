@@ -19,15 +19,12 @@ SNIPPET_LENGTH = 200
 def ask_question(payload: schemas.AskRequest, db: Session = Depends(get_db)):
     question = payload.question.strip()
 
-    chunks = (
+    has_chunks = db.query(
         db.query(models.Chunk)
-        .filter(
-            models.Chunk.embedding.is_not(None),
-            models.Chunk.embedding_model == config.EMBEDDING_MODEL,
-        )
-        .all()
-    )
-    if not chunks:
+        .filter(models.Chunk.embedding_model == config.EMBEDDING_MODEL)
+        .exists()
+    ).scalar()
+    if not has_chunks:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No documents have been added yet.",
@@ -35,7 +32,7 @@ def ask_question(payload: schemas.AskRequest, db: Session = Depends(get_db)):
 
     query_embedding = embed_text(question)
     top_chunks = top_k_chunks(
-        chunks, query_embedding, k=config.TOP_K, min_similarity=config.MIN_SIMILARITY
+        db, query_embedding, k=config.TOP_K, min_similarity=config.MIN_SIMILARITY
     )
     if not top_chunks:
         return schemas.AskResponse(answer=NO_ANSWER, sources=[])

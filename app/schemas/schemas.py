@@ -8,8 +8,9 @@ class DocumentListItem(BaseModel):
 
     id: int
     title: str
-    source_type: str
-    uploaded_at: datetime
+    url: str
+    published_at: datetime | None
+    created_at: datetime
 
 
 class DocumentDetail(DocumentListItem):
