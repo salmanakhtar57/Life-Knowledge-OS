@@ -11,3 +11,6 @@ httpx
 pyjwt
 pwdlib[argon2]
 python-multipart
+feedparser
+beautifulsoup4
+httpx

@@ -67,3 +67,9 @@ def ensure_all_documents_processed(db: Session) -> None:
     )
     for document in documents:
         process_document(db, document)
+
+def process_pending_documents(db: Session) -> None:
+    """Chunk + embed every document that still needs it. Uses the same lock as
+    the docs-folder sync so the two can't process a document at once."""
+    with _sync_lock:
+        ensure_all_documents_processed(db)

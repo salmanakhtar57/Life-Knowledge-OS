@@ -4,11 +4,12 @@ This document explains how Life Knowledge OS is put together, how its parts
 connect, and how the RAG (retrieval-augmented generation) pipeline works,
 including embeddings, retrieval, prompting and cost. Each design choice links
 to official documentation or a trusted article, so you can check the
-reasoning. The [Design decisions](#7-design-decisions-and-trade-offs) section
+reasoning. The [Design decisions]
+(#7-design-decisions-and-trade-offs) section
 lists where this project deliberately departs from the usual production
 approach, to be revisited later.
 
-For setup and the API list, see the [README](../README.md).
+For setup and the API list, see the [README](README.md).
 
 ---
 

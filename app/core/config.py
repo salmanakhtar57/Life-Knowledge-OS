@@ -69,3 +69,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
 
 # Web
 CORS_ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX", r"http://(localhost|127\.0\.0\.1):\d+")
+
+# External sources (Substack, ...)
+FETCH_TIMEOUT_SECONDS = float(os.getenv("FETCH_TIMEOUT_SECONDS", "20"))
+# Posts with less text than this are skipped (empty posts, bare paywall stubs).
+MIN_ARTICLE_CHARS = int(os.getenv("MIN_ARTICLE_CHARS", "200"))

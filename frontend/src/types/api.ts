@@ -4,6 +4,8 @@ export interface SourceOut {
   chunk_id: number;
   chunk_index: number;
   snippet: string;
+  source_platform: "personal" | "substack" | "medium" | "portfolio";
+  document_url: string | null;
 }
 
 export interface AskResponse {
@@ -15,4 +17,11 @@ export interface UploadResult {
   id: number;
   title: string;
   chunk_count: number;
+}
+
+export interface SyncResult {
+  fetched: number;
+  new: number;
+  skipped_duplicates: number;
+  skipped_empty: number;
 }

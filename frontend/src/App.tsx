@@ -3,6 +3,7 @@ import { Header } from "./components/Header";
 import { QuestionForm } from "./components/QuestionForm";
 import { AnswerCard } from "./components/AnswerCard";
 import { UploadPanel } from "./components/UploadPanel";
+import { SubstackPanel } from "./components/SubstackPanel";
 import type { AskResponse } from "./types/api";
 
 interface Card {
@@ -23,6 +24,7 @@ export default function App() {
       <Header />
       <QuestionForm onAnswered={handleAnswered} />
       <UploadPanel />
+      <SubstackPanel />
       {cards.length === 0 ? (
         <p className="empty-state">
           No card yet — ask something above and it'll be filed here.

@@ -1,4 +1,4 @@
-import type { AskResponse, UploadResult } from "../types/api";
+import type { AskResponse, SyncResult, UploadResult } from "../types/api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -34,6 +34,21 @@ export async function uploadDocument(file: File): Promise<UploadResult> {
 
   if (!response.ok) {
     throw new ApiError(await errorMessage(response, "Something went wrong uploading that file."));
+  }
+
+  return response.json();
+}
+
+
+export async function syncSubstack(url: string): Promise<SyncResult> {
+  const response = await fetch(`${API_URL}/sources/substack/sync`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(await errorMessage(response, "Something went wrong syncing that Substack."));
   }
 
   return response.json();

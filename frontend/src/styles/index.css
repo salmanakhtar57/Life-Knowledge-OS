@@ -233,3 +233,9 @@ body {
   margin: 0;
 }
 
+
+.source-tag.personal  { background: #DCE4D8; color: #4B5E4A; }
+.source-tag.substack  { background: #E9DEEF; color: #6B3E80; }
+.source-tag.medium    { background: #F2E3CC; color: #5A3E16; }
+.source-tag.portfolio { background: #DDE7EF; color: #2E5270; }
+a.source-tag { text-decoration: none; }

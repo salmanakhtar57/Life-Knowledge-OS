@@ -55,3 +55,28 @@ class AskResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+# Paste into app/schemas/schemas.py (your existing imports already cover BaseModel).
+
+
+class SubstackSyncRequest(BaseModel):
+    url: str  # "name.substack.com", "https://name.substack.com", or a custom domain
+
+
+class SyncResult(BaseModel):
+    fetched: int
+    new: int
+    skipped_duplicates: int
+    skipped_empty: int
+
+
+# --- Replace your existing SourceOut with this version (adds two optional fields) ---
+class SourceOut(BaseModel):
+    document_id: int
+    document_title: str
+    chunk_id: int
+    chunk_index: int
+    snippet: str
+    source_platform: str = "personal"   # "personal" | "substack" | "medium" | "portfolio"
+    document_url: str | None = None     # link to the post; None for local files

@@ -43,12 +43,23 @@ def ask_question(payload: schemas.AskRequest, db: Session = Depends(get_db)):
     return schemas.AskResponse(
         answer=answer,
         sources=[
+            # schemas.SourceOut(
+            #     document_id=chunk.document_id,
+            #     document_title=chunk.document.title,
+            #     chunk_id=chunk.id,
+            #     chunk_index=chunk.chunk_index,
+            #     snippet=chunk.text[:SNIPPET_LENGTH],
+            # )
             schemas.SourceOut(
                 document_id=chunk.document_id,
                 document_title=chunk.document.title,
                 chunk_id=chunk.id,
                 chunk_index=chunk.chunk_index,
                 snippet=chunk.text[:SNIPPET_LENGTH],
+                source_platform=chunk.document.source.platform.value,
+                document_url=(
+                    None if chunk.document.url.startswith("file:") else chunk.document.url
+                ),
             )
             for chunk in top_chunks
         ],

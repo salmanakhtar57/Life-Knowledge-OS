@@ -7,8 +7,8 @@ interface AnswerCardProps {
 }
 
 export function AnswerCard({ question, response }: AnswerCardProps) {
-  const sourceLabels = Array.from(
-    new Set(response.sources.map((source) => source.document_title)),
+  const sources = Array.from(
+    new Map(response.sources.map((source) => [source.document_title, source])).values(),
   );
 
   return (
@@ -17,10 +17,15 @@ export function AnswerCard({ question, response }: AnswerCardProps) {
       <h2>{question}</h2>
       <hr />
       <p>{response.answer}</p>
-      {sourceLabels.length > 0 && (
+      {sources.length > 0 && (
         <div className="answer-card-tags">
-          {sourceLabels.map((label) => (
-            <SourceTag key={label} label={label} />
+          {sources.map((source) => (
+            <SourceTag
+              key={source.document_title}
+              label={source.document_title}
+              platform={source.source_platform}
+              url={source.document_url}
+            />
           ))}
         </div>
       )}
