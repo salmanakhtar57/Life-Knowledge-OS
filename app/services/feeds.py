@@ -1,16 +1,6 @@
-"""Fetch posts from an RSS/Atom feed and turn them into plain-text articles.
-
-Substack uses this now; Medium (and any other feed) can reuse fetch_feed_articles
-with its own URL-normalising helper."""
-
-from __future__ import annotations
-
-import ipaddress
 import re
-import socket
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from urllib.parse import urlparse, urlunparse
+from time import mktime
 
 import feedparser
 import httpx
@@ -18,139 +8,132 @@ from bs4 import BeautifulSoup
 
 from app.core import config
 
-USER_AGENT = "Noteway/0.1 (personal knowledge assistant)"
-
-_BLOCK_TAGS = [
-    "p", "div", "li", "blockquote", "pre", "figure",
-    "h1", "h2", "h3", "h4", "h5", "h6",
-]
-
-
 class FeedError(Exception):
-    """Base class. status_code is the HTTP status the API should return."""
+    def __init__(self, message: str, status_code: int = 400):
+        self.status_code = status_code
+        super().__init__(message)
 
-    status_code = 502
+def normalize_substack_url(url: str) -> str:
+    """Normalize a Substack publication URL."""
+    url = url.strip().rstrip("/")
 
-
-class InvalidFeedURL(FeedError):
-    status_code = 400
-
-
-class FeedFetchError(FeedError):
-    status_code = 502
-
-
-@dataclass
-class Article:
-    title: str
-    url: str
-    published_at: datetime | None
-    text: str
-
-
-def normalize_substack_feed_url(raw_url: str) -> str:
-    """Accept 'name.substack.com', 'https://name.substack.com/', a post URL or a
-    custom domain, and return that publication's feed URL (<origin>/feed)."""
-    url = (raw_url or "").strip()
     if not url:
-        raise InvalidFeedURL("Enter a Substack URL.")
-    if "://" not in url:
-        url = "https://" + url
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        raise InvalidFeedURL("Enter a valid http(s) URL.")
-    return urlunparse((parsed.scheme, parsed.netloc, "/feed", "", "", ""))
+        raise ValueError("Substack URL is required.")
+
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+
+    return url
 
 
-def _validate_public_url(url: str) -> None:
-    """Refuse URLs that point at this machine or a private network, so the sync
-    endpoint can't be used to poke at internal services."""
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or not parsed.hostname:
-        raise InvalidFeedURL("Enter a valid http(s) URL.")
-    try:
-        infos = socket.getaddrinfo(parsed.hostname, None)
-    except socket.gaierror as exc:
-        raise InvalidFeedURL("Could not resolve that host.") from exc
-    for info in infos:
-        ip = ipaddress.ip_address(info[4][0].split("%")[0])
-        if (
-            ip.is_private
-            or ip.is_loopback
-            or ip.is_link_local
-            or ip.is_reserved
-            or ip.is_multicast
-        ):
-            raise InvalidFeedURL("That address is not allowed.")
+def get_feed_url(publication_url: str) -> str:
+    """Convert publication URL into its RSS feed URL."""
+    publication_url = normalize_substack_url(publication_url)
+    return f"{publication_url}/feed"
 
 
-def html_to_text(html: str) -> str:
-    """Strip HTML to readable plain text, keeping paragraph breaks."""
-    if not html:
-        return ""
+def _html_to_text(html: str) -> str:
+    """Extract readable text from HTML."""
     soup = BeautifulSoup(html, "html.parser")
-    for tag in soup(["script", "style"]):
-        tag.decompose()
-    for br in soup.find_all("br"):
-        br.replace_with("\n")
-    for block in soup.find_all(_BLOCK_TAGS):
-        block.append("\n\n")
-    text = soup.get_text()
-    text = re.sub(r"[ \t]+", " ", text)
-    text = re.sub(r"[ \t]*\n[ \t]*", "\n", text)
+
+    for element in soup(["script", "style", "noscript"]):
+        element.decompose()
+
+    return soup.get_text(separator="\n", strip=True)
+
+
+def _clean_text(text: str) -> str:
+    """Normalize excessive whitespace."""
     text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r"[ \t]+", " ", text)
     return text.strip()
 
 
-def _published_at(entry) -> datetime | None:
-    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
-    if not parsed:
-        return None
-    return datetime(*parsed[:6], tzinfo=timezone.utc)
+def _get_entry_content(entry) -> str:
+    """Extract article text from RSS entry content or summary."""
+    content = ""
+
+    if entry.get("content"):
+        content = "\n".join(
+            item.get("value", "")
+            for item in entry.content
+        )
+
+    if not content:
+        content = entry.get("summary", "")
+
+    text = _html_to_text(content)
+    return _clean_text(text)
 
 
-def fetch_feed_articles(feed_url: str) -> list[Article]:
-    """Download a feed and return its entries as plain-text articles.
+def _get_published_at(entry) -> datetime | None:
+    """Convert RSS publication date to timezone-aware datetime."""
+    published = entry.get("published_parsed")
 
-    Free Substack posts carry their full body in the feed; paid posts only carry
-    a teaser, and that is all we store. Feeds list recent posts only, so older
-    archive posts are not included."""
-    _validate_public_url(feed_url)
+    if published:
+        return datetime.fromtimestamp(
+            mktime(published),
+            tz=timezone.utc,
+        )
+
+    updated = entry.get("updated_parsed")
+
+    if updated:
+        return datetime.fromtimestamp(
+            mktime(updated),
+            tz=timezone.utc,
+        )
+
+    return None
+
+
+def fetch_substack_posts(publication_url: str) -> list[dict]:
+    """Fetch available articles from a Substack RSS feed.
+
+    Returns:
+        List of article dictionaries containing title, URL,
+        content, and publication date.
+    """
+    feed_url = get_feed_url(publication_url)
+
     try:
         response = httpx.get(
             feed_url,
             timeout=config.FETCH_TIMEOUT_SECONDS,
             follow_redirects=True,
-            headers={"User-Agent": USER_AGENT},
+            headers={
+                "User-Agent": "Mozilla/5.0 Noteway/1.0",
+            },
         )
         response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        raise FeedFetchError(
-            f"The site returned an error ({exc.response.status_code}) for that feed."
-        ) from exc
+
     except httpx.HTTPError as exc:
-        raise FeedFetchError("Could not reach that feed. Check the URL and try again.") from exc
+        raise RuntimeError(
+            f"Failed to fetch Substack feed: {exc}"
+        ) from exc
 
-    parsed = feedparser.parse(response.content)
-    # feedparser leaves `version` empty when the content isn't a feed at all
-    # (e.g. an HTML page). A real feed with zero posts has a version and is fine.
-    if not parsed.entries and not parsed.version:
-        raise FeedFetchError("That URL did not return a valid RSS feed.")
+    feed = feedparser.parse(response.text)
 
-    articles: list[Article] = []
-    for entry in parsed.entries:
-        url = (entry.get("link") or "").strip()
-        title = (entry.get("title") or "").strip()
-        if not url or not title:
+    if feed.bozo and not feed.entries:
+        raise RuntimeError("Substack returned an invalid RSS feed.")
+
+    posts = []
+
+    for entry in feed.entries:
+        title = entry.get("title", "Untitled").strip()
+        url = entry.get("link", "").strip()
+        text = _get_entry_content(entry)
+
+        if not url:
             continue
-        content = entry.get("content") or []
-        html = content[0].get("value", "") if content else entry.get("summary", "")
-        articles.append(
-            Article(
-                title=title,
-                url=url,
-                published_at=_published_at(entry),
-                text=html_to_text(html),
-            )
+
+        posts.append(
+            {
+                "title": title,
+                "url": url,
+                "raw_text": text,
+                "published_at": _get_published_at(entry),
+            }
         )
-    return articles
+
+    return posts

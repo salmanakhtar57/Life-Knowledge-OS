@@ -74,3 +74,19 @@ CORS_ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX", r"http://(localhost|127\.0\.0
 FETCH_TIMEOUT_SECONDS = float(os.getenv("FETCH_TIMEOUT_SECONDS", "20"))
 # Posts with less text than this are skipped (empty posts, bare paywall stubs).
 MIN_ARTICLE_CHARS = int(os.getenv("MIN_ARTICLE_CHARS", "200"))
+
+# Substack
+SUBSTACK_URL = os.getenv("SUBSTACK_URL", "").strip()
+
+SUBSTACK_SYNC_INTERVAL_HOURS = int(
+    os.getenv("SUBSTACK_SYNC_INTERVAL_HOURS", "24")
+)
+
+# External source synchronization
+FETCH_TIMEOUT_SECONDS = float(
+    os.getenv("FETCH_TIMEOUT_SECONDS", "20")
+)
+
+MIN_ARTICLE_CHARS = int(
+    os.getenv("MIN_ARTICLE_CHARS", "200")
+)

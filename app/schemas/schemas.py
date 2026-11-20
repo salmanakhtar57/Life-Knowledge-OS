@@ -3,6 +3,10 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
+# =========================
+# Documents
+# =========================
+
 class DocumentListItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -28,15 +32,19 @@ class UploadResult(BaseModel):
     chunk_count: int
 
 
+# =========================
+# Ask / RAG
+# =========================
+
 class AskRequest(BaseModel):
     question: str
 
     @field_validator("question")
     @classmethod
-    def question_not_empty(cls, v: str) -> str:
-        if not v.strip():
+    def question_not_empty(cls, value: str) -> str:
+        if not value.strip():
             raise ValueError("question must not be empty")
-        return v
+        return value
 
 
 class SourceOut(BaseModel):
@@ -45,6 +53,10 @@ class SourceOut(BaseModel):
     chunk_id: int
     chunk_index: int
     snippet: str
+
+    # Additional source information for Noteway
+    source_platform: str = "personal"
+    document_url: str | None = None
 
 
 class AskResponse(BaseModel):
@@ -52,31 +64,49 @@ class AskResponse(BaseModel):
     sources: list[SourceOut]
 
 
+# =========================
+# Auth
+# =========================
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 
-# Paste into app/schemas/schemas.py (your existing imports already cover BaseModel).
-
+# =========================
+# Substack
+# =========================
 
 class SubstackSyncRequest(BaseModel):
-    url: str  # "name.substack.com", "https://name.substack.com", or a custom domain
+    url: str
 
 
-class SyncResult(BaseModel):
+class PostOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    url: str
+    published_at: datetime | None
+    created_at: datetime
+
+
+class PostSyncResponse(BaseModel):
     fetched: int
     new: int
     skipped_duplicates: int
     skipped_empty: int
+    message: str
+    already_running: bool = False
 
 
-# --- Replace your existing SourceOut with this version (adds two optional fields) ---
-class SourceOut(BaseModel):
-    document_id: int
-    document_title: str
-    chunk_id: int
-    chunk_index: int
-    snippet: str
-    source_platform: str = "personal"   # "personal" | "substack" | "medium" | "portfolio"
-    document_url: str | None = None     # link to the post; None for local files
+# =========================
+# Noteway statistics
+# =========================
+
+class StatsResponse(BaseModel):
+    substack_posts: int
+    faq_documents: int
+    last_published_at: datetime | None
+    days_since_last_post: int | None
+    last_synced_at: datetime | None
