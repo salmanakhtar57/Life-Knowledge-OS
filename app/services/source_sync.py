@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 import threading
 
 from sqlalchemy.orm import Session
@@ -7,8 +8,12 @@ from app.core import config
 from app.models import models
 from app.services.feeds import fetch_substack_posts, normalize_substack_url
 from app.services.processing import process_pending_documents
+from app.services.writing_ideas import refresh_writing_ideas
+
+logger = logging.getLogger(__name__)
 
 _sync_lock = threading.Lock()
+
 
 def get_or_create_substack_source(
     db: Session,
@@ -94,6 +99,20 @@ def _sync_substack(db: Session) -> dict:
     # This also handles documents left pending by a previous failed sync.
     process_pending_documents(db)
 
+    # Regenerate writing suggestions only when new articles were added.
+    if new_count > 0:
+        try:
+            refresh_writing_ideas(db)
+            logger.info(
+                "Writing suggestions regenerated after adding %s new article(s).",
+                new_count,
+            )
+        except Exception:
+            logger.exception(
+                "New Substack articles were saved, but writing suggestions "
+                "could not be regenerated."
+            )
+
     return {
         "fetched": fetched,
         "new": new_count,
@@ -109,6 +128,7 @@ def _sync_substack(db: Session) -> dict:
 
 def sync_substack(db: Session) -> dict:
     """Run Substack synchronization only if another sync isn't active."""
+
     if not _sync_lock.acquire(blocking=False):
         return {
             "fetched": 0,

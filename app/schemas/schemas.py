@@ -112,11 +112,15 @@ class StatsResponse(BaseModel):
     last_synced_at: datetime | None
 
 
-class WritingIdea(BaseModel):
-    title: str = Field(min_length=1)
-    description: str = Field(min_length=1)
+# class WritingIdea(BaseModel):
+#     title: str = Field(min_length=1)
+#     description: str = Field(min_length=1)
 
+
+# class WritingIdeasResponse(BaseModel):
+#     summary: str = Field(min_length=1)
+#     ideas: list[str] = Field(max_length=3)
 
 class WritingIdeasResponse(BaseModel):
-    summary: str = Field(min_length=1)
+    summary: str
     ideas: list[str] = Field(max_length=3)
