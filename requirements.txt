@@ -15,4 +15,3 @@ feedparser
 beautifulsoup4
 httpx
 APScheduler>=3.10,<4
-pytest
