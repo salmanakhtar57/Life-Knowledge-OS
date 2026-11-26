@@ -31,37 +31,52 @@ def get_writing_ideas(db: Session) -> WritingIdeasResponse:
     )
 
     prompt = f"""
-Analyze the author's recent articles and identify their recurring topics,
-interests, writing themes, and unexplored angles.
+        Analyze the author's recent articles to understand their writing style,
+        interests, experiences, opinions, and recurring topics.
 
-Return:
-- One short summary beginning with "You previously wrote about..."
-- Exactly 3 new article title suggestions.
+        Return:
+        - One short summary of the author's previous writing.
+        - Exactly 3 new article title suggestions.
 
-Rules:
-- Analyze article content, not just titles.
-- Suggestions must be relevant to the author's actual writing.
-- Explore new angles or connections rather than repeating existing articles.
-- Avoid generic ideas.
-- Do not invent personal experiences or achievements.
-- Keep the summary to one sentence.
-- Titles should be concise and natural.
-- Return JSON only, without Markdown.
+        Summary rules:
+        - Use simple, everyday English.
+        - Keep it very short, ideally no more than 15-20 words.
+        - It should fit within approximately 1-1.5 lines on a dashboard.
+        - Begin with "You previously wrote about..."
+        - Avoid unnecessary details or complicated wording.
 
-Required format:
-{{
-  "summary": "You previously wrote about ...",
-  "ideas": [
-    "First article title",
-    "Second article title",
-    "Third article title"
-  ]
-}}
+        Suggestion rules:
+        - Suggest realistic, specific article ideas the author could genuinely write.
+        - Make ideas closely related to the author's actual interests, experiences,
+        previous articles, or ongoing learning.
+        - Prefer narrow, focused topics over broad subjects.
+        - Suggest practical angles, personal observations, lessons, problems,
+        decisions, or experiences that could form an actual article.
+        - Explore new angles within the author's existing interests rather than
+        repeating topics they have already covered.
+        - Avoid generic, motivational, philosophical, or overly abstract topics.
+        - Avoid ideas that sound like generic AI-generated blog titles.
+        - Do not invent personal experiences, opinions, or achievements.
+        - Titles should sound natural, simple, and human.
+        - Each suggestion should be specific enough that the author immediately
+        knows what they could write about.
 
-ARTICLES:
+        Return JSON only, without Markdown.
 
-{articles_content}
-"""
+        Required format:
+        {{
+        "summary": "You previously wrote about ...",
+        "ideas": [
+            "First article title",
+            "Second article title",
+            "Third article title"
+        ]
+        }}
+
+        ARTICLES:
+
+        {articles_content}
+    """
 
     response = generate_answer(prompt)
 
