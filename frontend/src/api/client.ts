@@ -1,4 +1,4 @@
-
+import type { WritingIdeasResponse } from "../types/api";
 import type {
   AskResponse,
   Post,
@@ -94,4 +94,14 @@ export async function syncSubstack(url: string): Promise<SyncResult> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url }),
   });
+}
+
+export async function getWritingIdeas(): Promise<WritingIdeasResponse> {
+  const response = await fetch(`${API_URL}/writing-ideas`);
+
+  if (!response.ok) {
+    throw new Error("Failed to generate writing ideas.");
+  }
+
+  return response.json();
 }

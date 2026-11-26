@@ -50,3 +50,14 @@ export interface StatsResponse {
   days_since_last_post: number | null;
   last_synced_at: string | null;
 }
+
+
+export interface WritingIdea {
+  title: string;
+  description: string;
+}
+
+export interface WritingIdeasResponse {
+  summary: string;
+  ideas: WritingIdea[];
+}
