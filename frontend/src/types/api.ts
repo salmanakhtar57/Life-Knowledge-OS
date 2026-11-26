@@ -59,5 +59,5 @@ export interface WritingIdea {
 
 export interface WritingIdeasResponse {
   summary: string;
-  ideas: WritingIdea[];
+  ideas: string[];
 }

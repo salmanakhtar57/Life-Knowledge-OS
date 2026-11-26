@@ -85,8 +85,7 @@ export function SuggestionsPanel({ platform }: SuggestionsPanelProps) {
         <div className="suggestion-chips">
       {data.ideas.map((idea, index) => (
         <div className="suggestion-chip" key={index}>
-          <strong>{idea.title}</strong>
-          <p>{idea.description}</p>
+          {idea}
         </div>
       ))}
         </div>

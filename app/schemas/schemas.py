@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 
 
 # =========================
@@ -110,3 +110,13 @@ class StatsResponse(BaseModel):
     last_published_at: datetime | None
     days_since_last_post: int | None
     last_synced_at: datetime | None
+
+
+class WritingIdea(BaseModel):
+    title: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+
+
+class WritingIdeasResponse(BaseModel):
+    summary: str = Field(min_length=1)
+    ideas: list[str] = Field(max_length=3)
