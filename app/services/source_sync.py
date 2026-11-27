@@ -8,7 +8,7 @@ from app.core import config
 from app.models import models
 from app.services.feeds import fetch_substack_posts, normalize_substack_url
 from app.services.processing import process_pending_documents
-from app.services.writing_ideas import refresh_writing_ideas
+from app.services.writing_ideas import refresh_substack_writing_ideas
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ def _sync_substack(db: Session) -> dict:
     # Regenerate writing suggestions only when new articles were added.
     if new_count > 0:
         try:
-            refresh_writing_ideas(db)
+            refresh_substack_writing_ideas(db)
             logger.info(
                 "Writing suggestions regenerated after adding %s new article(s).",
                 new_count,

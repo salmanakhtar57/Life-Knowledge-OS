@@ -1,3 +1,4 @@
+
 import json
 
 from sqlalchemy.orm import Session
@@ -7,10 +8,13 @@ from app.schemas.schemas import WritingIdeasResponse
 from app.services.generation import generate_answer
 
 
-def get_writing_ideas(db: Session) -> WritingIdeasResponse:
+def _get_writing_ideas(
+    db: Session,
+    platform: models.SourcePlatform,
+) -> WritingIdeasResponse:
     cached = (
         db.query(models.WritingSuggestion)
-        .order_by(models.WritingSuggestion.id)
+        .filter(models.WritingSuggestion.platform == platform.value)
         .first()
     )
 
@@ -20,22 +24,29 @@ def get_writing_ideas(db: Session) -> WritingIdeasResponse:
             ideas=cached.ideas,
         )
 
-    return refresh_writing_ideas(db)
+    return _refresh_writing_ideas(db, platform)
 
 
-def refresh_writing_ideas(db: Session) -> WritingIdeasResponse:
+def _refresh_writing_ideas(
+    db: Session,
+    platform: models.SourcePlatform,
+) -> WritingIdeasResponse:
+    is_medium = platform == models.SourcePlatform.MEDIUM
+    platform_name = "Medium" if is_medium else "Substack"
+    article_limit = 3 if is_medium else 5
+
     articles = (
         db.query(models.Document)
         .join(models.Source)
-        .filter(models.Source.platform == models.SourcePlatform.SUBSTACK)
+        .filter(models.Source.platform == platform)
         .order_by(models.Document.published_at.desc().nullslast())
-        .limit(5)
+        .limit(article_limit)
         .all()
     )
 
     if not articles:
         result = WritingIdeasResponse(
-            summary="Publish some Substack articles to get writing suggestions.",
+            summary=f"Publish some {platform_name} articles to get writing suggestions.",
             ideas=[],
         )
     else:
@@ -110,7 +121,7 @@ ARTICLES:
 
     cached = (
         db.query(models.WritingSuggestion)
-        .order_by(models.WritingSuggestion.id)
+        .filter(models.WritingSuggestion.platform == platform.value)
         .first()
     )
 
@@ -119,6 +130,7 @@ ARTICLES:
         cached.ideas = result.ideas
     else:
         cached = models.WritingSuggestion(
+            platform=platform.value,
             summary=result.summary,
             ideas=result.ideas,
         )
@@ -128,3 +140,23 @@ ARTICLES:
     db.refresh(cached)
 
     return result
+
+
+# Substack
+def get_substack_writing_ideas(db: Session) -> WritingIdeasResponse:
+    return _get_writing_ideas(db, models.SourcePlatform.SUBSTACK)
+
+
+def refresh_substack_writing_ideas(db: Session) -> WritingIdeasResponse:
+    return _refresh_writing_ideas(db, models.SourcePlatform.SUBSTACK)
+
+
+# Medium
+def get_medium_writing_ideas(db: Session) -> WritingIdeasResponse:
+    return _get_writing_ideas(db, models.SourcePlatform.MEDIUM)
+
+
+def refresh_medium_writing_ideas(db: Session) -> WritingIdeasResponse:
+    return _refresh_writing_ideas(db, models.SourcePlatform.MEDIUM)
+
+

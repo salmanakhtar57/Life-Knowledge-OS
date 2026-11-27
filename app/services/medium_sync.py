@@ -1,5 +1,6 @@
 
 from datetime import datetime, timezone
+import logging
 import threading
 
 from sqlalchemy.orm import Session
@@ -11,6 +12,9 @@ from app.services.feeds import (
     normalize_medium_url,
 )
 from app.services.processing import process_pending_documents
+from app.services.writing_ideas import refresh_medium_writing_ideas
+
+logger = logging.getLogger(__name__)
 
 _medium_sync_lock = threading.Lock()
 
@@ -85,11 +89,22 @@ def _sync_medium(db: Session) -> dict:
 
     source.last_synced_at = datetime.now(timezone.utc)
 
-    # Store the new Medium articles before embedding them.
     db.commit()
 
-    # Reuse the existing embedding and chunking pipeline.
     process_pending_documents(db)
+
+    if new_count > 0:
+        try:
+            refresh_medium_writing_ideas(db)
+            logger.info(
+                "Medium writing suggestions regenerated after adding %s new article(s).",
+                new_count,
+            )
+        except Exception:
+            logger.exception(
+                "New Medium articles were saved, but writing suggestions "
+                "could not be regenerated."
+            )
 
     return {
         "fetched": fetched,
