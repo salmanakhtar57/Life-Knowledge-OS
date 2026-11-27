@@ -196,7 +196,7 @@ def fetch_substack_posts(publication_url: str) -> list[dict]:
 # Medium
 # =========================
 
-def fetch_medium_posts(profile_url: str) -> list[dict]:
+def fetch_medium_posts() -> list[dict]:
     """Fetch articles from the configured Medium RSS feed."""
 
     if not config.MEDIUM_URL:
