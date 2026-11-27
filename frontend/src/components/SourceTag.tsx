@@ -1,18 +1,40 @@
+
+import type { SourcePlatform } from "../types/api";
+
 interface SourceTagProps {
   label: string;
-  platform?: "personal" | "substack" | "medium" | "portfolio";
+  platform?: SourcePlatform;
   url?: string | null;
 }
 
-export function SourceTag({ label, platform = "personal", url }: SourceTagProps) {
+export function SourceTag({
+  label,
+  platform = "personal",
+  url,
+}: SourceTagProps) {
   const className = `source-tag ${platform}`;
+
+  const content = (
+    <>
+      {platform === "substack" && <span className="tag-mark">▰</span>}
+      {platform === "medium" && <span className="tag-mark medium-mark">M</span>}
+      {platform === "personal" && <span className="tag-mark">▤</span>}
+      <span>{label}</span>
+    </>
+  );
 
   if (url) {
     return (
-      <a className={className} href={url} target="_blank" rel="noopener noreferrer">
-        {label}
+      <a
+        className={className}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {content}
       </a>
     );
   }
-  return <span className={className}>{label}</span>;
+
+  return <span className={className}>{content}</span>;
 }
