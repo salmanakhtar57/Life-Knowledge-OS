@@ -1,3 +1,4 @@
+
 import re
 from datetime import datetime, timezone
 from time import mktime
@@ -8,10 +9,16 @@ from bs4 import BeautifulSoup
 
 from app.core import config
 
+
 class FeedError(Exception):
     def __init__(self, message: str, status_code: int = 400):
         self.status_code = status_code
         super().__init__(message)
+
+
+# =========================
+# URL normalization
+# =========================
 
 def normalize_substack_url(url: str) -> str:
     """Normalize a Substack publication URL."""
@@ -26,11 +33,48 @@ def normalize_substack_url(url: str) -> str:
     return url
 
 
+def normalize_medium_url(url: str) -> str:
+    """Normalize a Medium profile or publication URL."""
+    url = url.strip().rstrip("/")
+
+    if not url:
+        raise ValueError("Medium URL is required.")
+
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+
+    url = url.replace("http://", "https://", 1)
+
+    # Convert a feed URL back to its canonical profile URL.
+    url = url.replace("medium.com/feed/", "medium.com/")
+
+    return url
+
+
+# =========================
+# Feed URLs
+# =========================
+
 def get_feed_url(publication_url: str) -> str:
-    """Convert publication URL into its RSS feed URL."""
+    """Convert Substack publication URL into its RSS feed URL."""
     publication_url = normalize_substack_url(publication_url)
     return f"{publication_url}/feed"
 
+
+def get_medium_feed_url(profile_url: str) -> str:
+    """Convert Medium profile URL into its RSS feed URL."""
+    profile_url = normalize_medium_url(profile_url)
+
+    if "medium.com" in profile_url:
+        return f"{profile_url.replace('medium.com/', 'medium.com/feed/', 1)}"
+
+    # Supports Medium custom domains as well.
+    return f"{profile_url}/feed"
+
+
+# =========================
+# Content parsing
+# =========================
 
 def _html_to_text(html: str) -> str:
     """Extract readable text from HTML."""
@@ -87,15 +131,12 @@ def _get_published_at(entry) -> datetime | None:
     return None
 
 
-def fetch_substack_posts(publication_url: str) -> list[dict]:
-    """Fetch available articles from a Substack RSS feed.
+# =========================
+# Generic RSS fetching
+# =========================
 
-    Returns:
-        List of article dictionaries containing title, URL,
-        content, and publication date.
-    """
-    feed_url = get_feed_url(publication_url)
-
+def _fetch_feed(feed_url: str, platform: str) -> list[dict]:
+    """Fetch and parse an RSS feed."""
     try:
         response = httpx.get(
             feed_url,
@@ -109,13 +150,15 @@ def fetch_substack_posts(publication_url: str) -> list[dict]:
 
     except httpx.HTTPError as exc:
         raise RuntimeError(
-            f"Failed to fetch Substack feed: {exc}"
+            f"Failed to fetch {platform} feed: {exc}"
         ) from exc
 
     feed = feedparser.parse(response.text)
 
     if feed.bozo and not feed.entries:
-        raise RuntimeError("Substack returned an invalid RSS feed.")
+        raise RuntimeError(
+            f"{platform} returned an invalid RSS feed."
+        )
 
     posts = []
 
@@ -137,3 +180,27 @@ def fetch_substack_posts(publication_url: str) -> list[dict]:
         )
 
     return posts
+
+
+# =========================
+# Substack
+# =========================
+
+def fetch_substack_posts(publication_url: str) -> list[dict]:
+    """Fetch articles from a Substack RSS feed."""
+    feed_url = get_feed_url(publication_url)
+    return _fetch_feed(feed_url, "Substack")
+
+
+# =========================
+# Medium
+# =========================
+
+def fetch_medium_posts(profile_url: str) -> list[dict]:
+    """Fetch articles from the configured Medium RSS feed."""
+
+    if not config.MEDIUM_URL:
+        raise ValueError("Medium URL is not configured.")
+    
+    feed_url = get_medium_feed_url(config.MEDIUM_URL)
+    return _fetch_feed(feed_url, "Medium")

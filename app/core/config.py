@@ -90,3 +90,6 @@ FETCH_TIMEOUT_SECONDS = float(
 MIN_ARTICLE_CHARS = int(
     os.getenv("MIN_ARTICLE_CHARS", "200")
 )
+
+# Medium
+MEDIUM_URL = os.getenv("MEDIUM_URL", "").strip()
