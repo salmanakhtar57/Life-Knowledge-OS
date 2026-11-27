@@ -1,3 +1,4 @@
+
 import type { WritingIdeasResponse } from "../types/api";
 import type {
   AskResponse,
@@ -67,6 +68,7 @@ export async function getStats(): Promise<StatsResponse> {
   return request<StatsResponse>("/stats");
 }
 
+// Substack posts
 export async function getLatestPosts(): Promise<Post[]> {
   const result = await request<Post[] | { posts: Post[] }>(
     "/posts/latest",
@@ -83,6 +85,29 @@ export async function getAllPosts(): Promise<Post[]> {
 
 export async function syncPosts(): Promise<SyncResult> {
   return request<SyncResult>("/posts/sync", {
+    method: "POST",
+  });
+}
+
+// Medium posts
+export async function getLatestMediumPosts(): Promise<Post[]> {
+  const result = await request<Post[] | { posts: Post[] }>(
+    "/medium/posts/latest",
+  );
+
+  return Array.isArray(result) ? result : result.posts;
+}
+
+export async function getAllMediumPosts(): Promise<Post[]> {
+  const result = await request<Post[] | { posts: Post[] }>(
+    "/medium/posts",
+  );
+
+  return Array.isArray(result) ? result : result.posts;
+}
+
+export async function syncMediumPosts(): Promise<SyncResult> {
+  return request<SyncResult>("/medium/sync", {
     method: "POST",
   });
 }

@@ -1,7 +1,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { getLatestPosts, getStats } from "./api/client";
+import {
+  getLatestPosts,
+  getLatestMediumPosts,
+  getStats,
+} from "./api/client";
 import type { Post, StatsResponse } from "./types/api";
 import { PublicationPanel } from "./components/PublicationPanel";
 import { Header } from "./components/Header";
@@ -14,9 +18,11 @@ export default function App() {
 
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [mediumPosts, setMediumPosts] = useState<Post[]>([]);
 
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingMediumPosts, setLoadingMediumPosts] = useState(true);
 
   const [dashboardError, setDashboardError] = useState("");
 
@@ -43,20 +49,45 @@ export default function App() {
       setPosts(result);
     } catch (error) {
       setDashboardError(
-        error instanceof Error ? error.message : "Could not load posts.",
+        error instanceof Error ? error.message : "Could not load Substack posts.",
       );
     } finally {
       setLoadingPosts(false);
     }
   }, []);
 
+  const refreshMediumPosts = useCallback(async () => {
+    try {
+      const result = await getLatestMediumPosts();
+      setMediumPosts(result);
+    } catch (error) {
+      setDashboardError(
+        error instanceof Error ? error.message : "Could not load Medium posts.",
+      );
+    } finally {
+      setLoadingMediumPosts(false);
+    }
+  }, []);
+
   const refreshDashboard = useCallback(async () => {
-    await Promise.all([refreshStats(), refreshPosts()]);
-  }, [refreshStats, refreshPosts]);
+    await Promise.all([
+      refreshStats(),
+      refreshPosts(),
+      refreshMediumPosts(),
+    ]);
+  }, [refreshStats, refreshPosts, refreshMediumPosts]);
 
   useEffect(() => {
     void refreshDashboard();
   }, [refreshDashboard]);
+
+  function handleRetry() {
+    setDashboardError("");
+    setLoadingStats(true);
+    setLoadingPosts(true);
+    setLoadingMediumPosts(true);
+    void refreshDashboard();
+  }
 
   return (
     <main className="dashboard">
@@ -70,12 +101,7 @@ export default function App() {
       {dashboardError && (
         <div className="dashboard-error" role="alert">
           {dashboardError}
-          <button type="button" onClick={() => {
-            setDashboardError("");
-            setLoadingStats(true);
-            setLoadingPosts(true);
-            void refreshDashboard();
-          }}>
+          <button type="button" onClick={handleRetry}>
             Retry
           </button>
         </div>
@@ -91,14 +117,18 @@ export default function App() {
 
         <PublicationPanel
           platform="medium"
-          posts={[]}
-          onPostsUpdated={() => undefined}
+          posts={mediumPosts}
+          onPostsUpdated={setMediumPosts}
           onSynced={refreshDashboard}
         />
       </section>
 
       {loadingPosts && (
         <p className="loading-note">Loading your latest Substack posts...</p>
+      )}
+
+      {loadingMediumPosts && (
+        <p className="loading-note">Loading your latest Medium posts...</p>
       )}
 
       <AskYourWork />
