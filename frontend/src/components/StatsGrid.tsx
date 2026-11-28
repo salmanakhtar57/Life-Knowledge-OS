@@ -49,11 +49,6 @@ export function StatsGrid() {
       detail: "Integration coming later",
     },
     {
-      label: "Personal pages",
-      value: stats?.faq_documents ?? "—",
-      detail: "Knowledge documents",
-    },
-    {
       label: "Last published",
       value: stats ? formatDate(stats.last_published_at) : "—",
       detail:

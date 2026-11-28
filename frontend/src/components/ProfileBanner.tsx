@@ -50,15 +50,6 @@ export function ProfileBanner({ stats, loading }: ProfileBannerProps) {
           <span>Medium</span>
           <small>Posts</small>
         </div>
-
-        <div className="metric">
-          <svg viewBox="0 0 24 24" fill="none">
-            <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.8" />
-            <path d="M9 3v3m6-3v3M8 10h8m-8 4h8m-8 4h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-          <strong>{loading ? "—" : stats?.faq_documents ?? "—"}</strong>
-          <span>Pages</span>
-        </div>
       </div>
 
       <div className="last-published">

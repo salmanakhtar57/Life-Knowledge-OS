@@ -11,7 +11,6 @@ import { PublicationPanel } from "./components/PublicationPanel";
 import { Header } from "./components/Header";
 import { ProfileBanner } from "./components/ProfileBanner";
 import { AskYourWork } from "./components/AskYourWork";
-import { UploadPanel } from "./components/UploadPanel";
 
 type Theme = "light" | "dark" | "system";
 
@@ -164,13 +163,6 @@ export default function App() {
       )}
 
       <AskYourWork />
-
-      <details className="knowledge-management">
-        <summary>Manage your knowledge · Upload a document</summary>
-        <div className="knowledge-management-content">
-          <UploadPanel />
-        </div>
-      </details>
 
       <footer className="dashboard-footer">
         <span>Noteway</span>
