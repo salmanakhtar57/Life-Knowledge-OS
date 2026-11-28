@@ -45,6 +45,7 @@ export interface Post {
 
 export interface StatsResponse {
   substack_posts: number;
+  medium_posts: number;
   faq_documents: number;
   last_published_at: string | null;
   days_since_last_post: number | null;

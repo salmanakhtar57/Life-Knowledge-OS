@@ -43,6 +43,13 @@ def get_stats(db: Session = Depends(get_db)):
 
         last_synced_at = substack_source.last_synced_at
 
+    medium_count = (
+        db.query(func.count(models.Document.id))
+        .join(models.Source)
+        .filter(models.Source.platform == models.SourcePlatform.MEDIUM)
+        .scalar()
+    )
+    
     faq_count = (
         db.query(func.count(models.Document.id))
         .join(models.Source)
@@ -68,4 +75,5 @@ def get_stats(db: Session = Depends(get_db)):
         last_published_at=last_published_at,
         days_since_last_post=days_since_last_post,
         last_synced_at=last_synced_at,
+        medium_posts=medium_count or 0,
     )

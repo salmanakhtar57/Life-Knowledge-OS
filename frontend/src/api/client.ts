@@ -121,12 +121,24 @@ export async function syncSubstack(url: string): Promise<SyncResult> {
   });
 }
 
-export async function getWritingIdeas(): Promise<WritingIdeasResponse> {
-  const response = await fetch(`${API_URL}/writing-ideas`);
+// Substack writing ideas
+export async function getSubstackWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/substack/writing-ideas");
+}
 
-  if (!response.ok) {
-    throw new Error("Failed to generate writing ideas.");
-  }
+export async function refreshSubstackWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/substack/writing-ideas/refresh", {
+    method: "POST",
+  });
+}
 
-  return response.json();
+// Medium writing ideas
+export async function getMediumWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/medium/writing-ideas");
+}
+
+export async function refreshMediumWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/medium/writing-ideas/refresh", {
+    method: "POST",
+  });
 }

@@ -46,9 +46,9 @@ export function ProfileBanner({ stats, loading }: ProfileBannerProps) {
 
         <div className="metric">
           <span className="medium-letter">M</span>
-          <strong>—</strong>
+          <strong>{loading ? "—" : stats?.medium_posts ?? "—"}</strong>
           <span>Medium</span>
-          <small>Coming soon</small>
+          <small>Posts</small>
         </div>
 
         <div className="metric">

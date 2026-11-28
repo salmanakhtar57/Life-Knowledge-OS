@@ -106,6 +106,7 @@ class PostSyncResponse(BaseModel):
 
 class StatsResponse(BaseModel):
     substack_posts: int
+    medium_posts: int
     faq_documents: int
     last_published_at: datetime | None
     days_since_last_post: int | None
