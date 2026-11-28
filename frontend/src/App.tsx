@@ -13,8 +13,22 @@ import { ProfileBanner } from "./components/ProfileBanner";
 import { AskYourWork } from "./components/AskYourWork";
 import { UploadPanel } from "./components/UploadPanel";
 
+type Theme = "light" | "dark" | "system";
+
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (
+      savedTheme === "light" ||
+      savedTheme === "dark" ||
+      savedTheme === "system"
+    ) {
+      return savedTheme;
+    }
+
+    return "system";
+  });
 
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -26,9 +40,30 @@ export default function App() {
 
   const [dashboardError, setDashboardError] = useState("");
 
+  // Theme handling
   useEffect(() => {
-    document.documentElement.dataset.theme = darkMode ? "dark" : "light";
-  }, [darkMode]);
+    localStorage.setItem("theme", theme);
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = () => {
+      const isDark =
+        theme === "dark" ||
+        (theme === "system" && mediaQuery.matches);
+
+      document.documentElement.dataset.theme = isDark ? "dark" : "light";
+    };
+
+    applyTheme();
+
+    if (theme === "system") {
+      mediaQuery.addEventListener("change", applyTheme);
+
+      return () => {
+        mediaQuery.removeEventListener("change", applyTheme);
+      };
+    }
+  }, [theme]);
 
   const refreshStats = useCallback(async () => {
     try {
@@ -91,10 +126,7 @@ export default function App() {
 
   return (
     <main className="dashboard">
-      <Header
-        darkMode={darkMode}
-        onToggleTheme={() => setDarkMode((value) => !value)}
-      />
+      <Header theme={theme} onThemeChange={setTheme} />
 
       <ProfileBanner stats={stats} loading={loadingStats} />
 
