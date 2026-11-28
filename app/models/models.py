@@ -1,7 +1,7 @@
 import enum
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import BigInteger, Column, DateTime, Enum, ForeignKey, Integer, Text, UniqueConstraint, JSON
+from sqlalchemy import BigInteger, Column, DateTime, Enum, ForeignKey, Integer, Text, UniqueConstraint, JSON, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -84,8 +84,12 @@ class Chunk(Base):
 
 class WritingSuggestion(Base):
     __tablename__ = "writing_suggestions"
+    __table_args__ = (
+        UniqueConstraint("platform", name="uq_writing_suggestions_platform"),
+    )
 
-    id = Column(Integer, primary_key=True, default=1)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    platform = Column(String(20), nullable=False, default="substack")
     summary = Column(Text, nullable=False)
     ideas = Column(JSON, nullable=False)
     generated_at = Column(

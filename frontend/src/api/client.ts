@@ -1,3 +1,4 @@
+
 import type { WritingIdeasResponse } from "../types/api";
 import type {
   AskResponse,
@@ -67,6 +68,7 @@ export async function getStats(): Promise<StatsResponse> {
   return request<StatsResponse>("/stats");
 }
 
+// Substack posts
 export async function getLatestPosts(): Promise<Post[]> {
   const result = await request<Post[] | { posts: Post[] }>(
     "/posts/latest",
@@ -87,6 +89,29 @@ export async function syncPosts(): Promise<SyncResult> {
   });
 }
 
+// Medium posts
+export async function getLatestMediumPosts(): Promise<Post[]> {
+  const result = await request<Post[] | { posts: Post[] }>(
+    "/medium/posts/latest",
+  );
+
+  return Array.isArray(result) ? result : result.posts;
+}
+
+export async function getAllMediumPosts(): Promise<Post[]> {
+  const result = await request<Post[] | { posts: Post[] }>(
+    "/medium/posts",
+  );
+
+  return Array.isArray(result) ? result : result.posts;
+}
+
+export async function syncMediumPosts(): Promise<SyncResult> {
+  return request<SyncResult>("/medium/sync", {
+    method: "POST",
+  });
+}
+
 // Retained for the existing URL-based source sync workflow.
 export async function syncSubstack(url: string): Promise<SyncResult> {
   return request<SyncResult>("/sources/substack/sync", {
@@ -96,12 +121,24 @@ export async function syncSubstack(url: string): Promise<SyncResult> {
   });
 }
 
-export async function getWritingIdeas(): Promise<WritingIdeasResponse> {
-  const response = await fetch(`${API_URL}/writing-ideas`);
+// Substack writing ideas
+export async function getSubstackWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/substack/writing-ideas");
+}
 
-  if (!response.ok) {
-    throw new Error("Failed to generate writing ideas.");
-  }
+export async function refreshSubstackWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/substack/writing-ideas/refresh", {
+    method: "POST",
+  });
+}
 
-  return response.json();
+// Medium writing ideas
+export async function getMediumWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/medium/writing-ideas");
+}
+
+export async function refreshMediumWritingIdeas(): Promise<WritingIdeasResponse> {
+  return request<WritingIdeasResponse>("/medium/writing-ideas/refresh", {
+    method: "POST",
+  });
 }
